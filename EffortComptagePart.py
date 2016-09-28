@@ -57,9 +57,11 @@ class PartieEC(Partie):
         """
         logger.debug(u"{} Decision".format(self.joueur))
         debut = datetime.now()
-        self.currentperiod.EC_decision = yield(self.remote.callRemote(
-            "display_decision"))
+        self.currentperiod.EC_bonnes_reponses, reponses = yield(
+            self.remote.callRemote("display_decision"))
         self.currentperiod.EC_decisiontime = (datetime.now() - debut).seconds
+        self.joueur.info(u"{} - {}".format(
+            self.currentperiod.EC_bonnes_reponses, reponses))
         self.joueur.info(u"{}".format(self.currentperiod.EC_decision))
         self.joueur.remove_waitmode()
 
@@ -69,7 +71,9 @@ class PartieEC(Partie):
         :return:
         """
         logger.debug(u"{} Period Payoff".format(self.joueur))
-        self.currentperiod.EC_periodpayoff = 0
+        self.currentperiod.EC_periodpayoff = pms.GAIN if \
+            self.currentperiod.EC_bonnes_reponses == len(pms.BONNES_REPONSES) \
+            else 0
 
         # cumulative payoff since the first period
         if self.currentperiod.EC_period < 2:
@@ -132,6 +136,7 @@ class RepetitionsEC(Base):
     EC_treatment = Column(Integer)
     EC_group = Column(Integer)
     EC_decision = Column(Integer)
+    EC_bonnes_reponses = Column(Integer)
     EC_decisiontime = Column(Integer)
     EC_periodpayoff = Column(Float)
     EC_cumulativepayoff = Column(Float)

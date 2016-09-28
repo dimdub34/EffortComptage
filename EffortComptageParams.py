@@ -8,6 +8,8 @@ If you need to change some parameters below please be sure of what you do,
 which means that you should ask to the developer ;-)
 ============================================================================="""
 
+from datetime import time
+
 # variables --------------------------------------------------------------------
 TREATMENTS = {0: "baseline"}
 
@@ -19,10 +21,9 @@ TAILLE_GROUPES = 0
 GROUPES_CHAQUE_PERIODE = False
 MONNAIE = u"None"
 
-# DECISION
-DECISION_MIN = 0
-DECISION_MAX = 100
-DECISION_STEP = 1
+BONNES_REPONSES = [4, 5, 20, 22, 31, 41, 51, 69, 82, 95]  # mettre une liste
+TEMPS_DECISION = time(0, 15, 0) # heures, minutes, secondes
+GAIN = 10
 
 
 def get_treatment(code_or_name):

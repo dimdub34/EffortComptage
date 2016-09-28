@@ -27,7 +27,16 @@ def get_histo_head():
 
 
 def get_text_explanation():
-    return trans_EC(u"")
+    return trans_EC(u"Pour chaque grille veuillez indiquer le nombre de 1 "
+                    u"que vous avez compté.\nVous pouvez cliquer sur le "
+                    u"bouton \"Tester\" pour vérifier si le nombre saisi est "
+                    u"bon ou non. S'il est bon le bouton et la zone de "
+                    u"saisie ne sont plus actifs.")
+
+
+def get_text_final(bonnes_reponses):
+    return u"Vous avez trouvé {}.".format(
+        get_pluriel(trans_EC(u"bonne réponse"), bonnes_reponses))
 
 
 def get_text_summary(period_content):

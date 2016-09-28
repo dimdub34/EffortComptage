@@ -55,18 +55,23 @@ class RemoteEC(IRemote):
         """
         logger.info(u"{} Decision".format(self._le2mclt.uid))
         if self._le2mclt.simulation:
-            decision = \
-                random.randrange(
-                    pms.DECISION_MIN,
-                    pms.DECISION_MAX + pms.DECISION_STEP,
-                    pms.DECISION_STEP)
-            logger.info(u"{} Send back {}".format(self._le2mclt.uid, decision))
-            return decision
+            good_rep = pms.BONNES_REPONSES
+            nb_rep = len(good_rep)
+            bonnes_reponses = 0
+            reponses = []
+            for i in range(nb_rep):
+                if random.randint(0, 1):
+                    reponses.append(good_rep[i])
+                    bonnes_reponses += 1
+                else:
+                    reponses.append(random.randint(0, 101))
+            logger.info("Send back: {} {}".format(bonnes_reponses, reponses))
+            return bonnes_reponses, reponses
         else: 
             defered = defer.Deferred()
             ecran_decision = GuiDecision(
                 defered, self._le2mclt.automatique,
-                self._le2mclt.screen, self.currentperiod, self.histo)
+                self._le2mclt.screen)
             ecran_decision.show()
             return defered
 
