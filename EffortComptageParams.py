@@ -19,9 +19,10 @@ TAUX_CONVERSION = 1
 NOMBRE_PERIODES = 0
 TAILLE_GROUPES = 0
 GROUPES_CHAQUE_PERIODE = False
-MONNAIE = u"None"
+MONNAIE = u"euro"
 
 BONNES_REPONSES = [4, 5, 20, 22, 31, 41, 51, 69, 82, 95]  # mettre une liste
+NB_ROWS, NB_COLUMNS = 5, 2
 TEMPS_DECISION = time(0, 15, 0) # heures, minutes, secondes
 GAIN = 10
 

@@ -4,9 +4,8 @@ import logging
 import random
 
 from twisted.internet import defer
-from twisted.spread import pb
 from client.cltremote import IRemote
-from client.cltgui.cltguidialogs import GuiRecapitulatif
+from client.cltgui.cltguidialogs import GuiPopup
 import EffortComptageParams as pms
 from EffortComptageGui import GuiDecision
 import EffortComptageTexts as texts_EC
@@ -82,14 +81,14 @@ class RemoteEC(IRemote):
         :return: deferred
         """
         logger.info(u"{} Summary".format(self._le2mclt.uid))
-        self.histo.append([period_content.get(k) for k in self._histo_vars])
         if self._le2mclt.simulation:
             return 1
         else:
+            txt = texts_EC.get_text_summary(period_content)
             defered = defer.Deferred()
-            ecran_recap = GuiRecapitulatif(
-                defered, self._le2mclt.automatique, self._le2mclt.screen,
-                self.currentperiod, self.histo,
-                texts_EC.get_text_summary(period_content))
-            ecran_recap.show()
+            screen = GuiPopup(
+                defered, txt=txt,
+                temps=0 if not self.le2mclt.automatique else 7000,
+                parent=self.le2mclt.screen, html=False)
+            screen.show()
             return defered

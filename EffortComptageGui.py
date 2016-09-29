@@ -12,60 +12,64 @@ from configuration import configparam as params
 import EffortComptageParams as pms
 from EffortComptageTexts import trans_EC
 import EffortComptageTexts as texts_EC
-from client.cltgui.cltguiwidgets import WExplication, WSpinbox, WCompterebours
-
+from client.cltgui.cltguiwidgets import WExplication, WCompterebours
+from twisted.internet.defer import AlreadyCalledError
 
 logger = logging.getLogger("le2m")
 
-good_answer_signal = QtCore.pyqtSignal()
-
 
 class WCount(QtGui.QWidget):
-    def __init__(self, parent, number_id, good_answer, automatique):
+
+    good_answer_signal = QtCore.pyqtSignal()
+
+    def __init__(self, parent, number_id, good_answer, images, automatique):
         QtGui.QWidget.__init__(self, parent)
 
         self._good_answer = good_answer
         self._automatique = automatique
-        self._icon_true = QtGui.QIcon(os.path.join(params.getp("IMGDIR"),
-                                                   "true.png"))
+        self._img_question = images[0]
+        self._img_true = images[1]
+        self._img_false = images[2]
 
+        # layout ===============================================================
         layout = QtGui.QHBoxLayout(self)
 
-        self._decision = WSpinbox(
-            label=str(number_id), minimum=0, maximum=100, interval=1,
-            automatique=automatique, parent=self)
-        layout.addWidget(self._decision)
+        self._label = QtGui.QLabel(str(number_id))
+        layout.addWidget(self._label)
+
+        self._spinbox = QtGui.QSpinBox()
+        self._spinbox.setMinimum(0)
+        self._spinbox.setMaximum((100))
+        self._spinbox.setSingleStep(1)
+        self._spinbox.setButtonSymbols(QtGui.QSpinBox.NoButtons)
+        layout.addWidget(self._spinbox)
 
         self._pushbutton = QtGui.QPushButton(trans_EC(u"Test"))
         self._pushbutton.clicked.connect(self._tester)
         layout.addWidget(self._pushbutton)
 
-        layout.addSpacerItem(QtGui.QSpacerItem(
-            QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding, 20, 20))
+        self._label_img = QtGui.QLabel()
+        self._label_img.setPixmap(self._img_question)
+        layout.addWidget(self._label_img)
 
-        self.setWindowTitle(trans_EC(u"Décision"))
         self.adjustSize()
         self.setFixedSize(self.size())
 
         if automatique:
-            self._decision.ui.spinBox.setValue(randint(0, 100))
+            self._spinBox.setValue(randint(0, 100))
             self._pushbutton.click()
 
     def _tester(self):
-        if self._decision.get_value() == self._good_answer:
-            self._decision.setEnabled(False)
+        if self._spinbox.value() == self._good_answer:
+            self._spinbox.setEnabled(False)
             self._pushbutton.setEnabled(False)
-            self._pushbutton.setIcon(self._icon_true)
-            good_answer_signal.emit()
+            self._label_img.setPixmap(self._img_true)
+            self.good_answer_signal.emit()
         else:
-            if not self._automatique:
-                QtGui.QMessageBox.information(
-                    self, trans_EC(u"Résultat test"),
-                    trans_EC(u"Ce n'est pas le bon de nombre de 1"))
-                return
+            self._label_img.setPixmap(self._img_false)
 
     def get_value(self):
-        return self._decision.get_value()
+        return self._spinbox.value()
 
 
 class GuiDecision(QtGui.QDialog):
@@ -75,6 +79,17 @@ class GuiDecision(QtGui.QDialog):
         # variables
         self._defered = defered
         self._automatique = automatique
+        self._nb_good_answers = 0
+        # images
+        self._img_true = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
+                                                   "true.png"))
+        self._img_true = self._img_true.scaledToWidth(15)
+        self._img_false = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
+                                                    "false.png"))
+        self._img_false = self._img_false.scaledToWidth(15)
+        self._img_question = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
+                                                    "question.png"))
+        self._img_question = self._img_question.scaledToWidth(15)
 
         layout = QtGui.QVBoxLayout(self)
 
@@ -92,50 +107,105 @@ class GuiDecision(QtGui.QDialog):
         layout.addLayout(gridLayout)
 
         self._counts = {}
-        rows = len(pms.BONNES_REPONSES) / 2
         counter = 1
-        for col in range(2):
-            for row in range(rows):
-                count = WCount(self, counter, pms.BONNES_REPONSES[counter-1],
-                               automatique)
+        for col in range(pms.NB_COLUMNS):
+            for row in range(pms.NB_ROWS):
+                count = WCount(
+                    self, counter, pms.BONNES_REPONSES[counter-1],
+                    [self._img_question, self._img_true, self._img_false],
+                    automatique)
+                count.good_answer_signal.connect(self._add_good_answer)
                 self._counts[counter] = count
                 gridLayout.addWidget(count, row, col)
                 counter += 1
 
-        buttons = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok)
-        buttons.accepted.connect(self._accept)
-        layout.addWidget(buttons)
-
-        self.setWindowTitle(trans_EC(u"Title"))
+        self.setWindowTitle(trans_EC(u"Decisions"))
         self.adjustSize()
         self.setFixedSize(self.size())
 
-        if self._automatique:
-            self._timer_automatique = QtCore.QTimer()
-            self._timer_automatique.timeout.connect(
-                buttons.button(QtGui.QDialogButtonBox.Ok).click)
-            self._timer_automatique.start(7000)
+    def _add_good_answer(self):
+        self._nb_good_answers += 1
+        if self._nb_good_answers == len(pms.BONNES_REPONSES):
+            self._accept()
                 
     def reject(self):
         pass
     
     def _accept(self):
         try:
-            self._timer_automatique.stop()
+            self._compte_rebours.stop()
         except AttributeError:
             pass
         decisions = [v.get_value() for k, v in sorted(self._counts.viewitems())]
-        good_rep = 0
-        for i, val in enumerate(pms.BONNES_REPONSES):
-            if decisions[i] == val:
-                good_rep += 1
-        if not self._automatique:
-            confirmation = QtGui.QMessageBox.question(
-                self, le2mtrans(u"Confirmation"),
-                le2mtrans(u"Do you confirm your choice?"),
-                QtGui.QMessageBox.No | QtGui.QMessageBox.Yes)
-            if confirmation != QtGui.QMessageBox.Yes: 
-                return
         logger.info(u"Send back {}".format(decisions))
         self.accept()
-        self._defered.callback((good_rep, decisions))
+        try:
+            self._defered.callback((self._nb_good_answers, decisions))
+        except AlreadyCalledError: # if compte à rebours en même temps
+            pass
+
+
+class DConfig(QtGui.QDialog):
+    def __init__(self, ecran_serveur):
+        QtGui.QDialog.__init__(self, ecran_serveur)
+
+        layout = QtGui.QVBoxLayout()
+        self.setLayout(layout)
+
+        form_layout = QtGui.QFormLayout()
+        layout.addLayout(form_layout)
+
+        # good answers
+        form_layout.setWidget(0, QtGui.QFormLayout.LabelRole,
+                              QtGui.QLabel(trans_EC(u"Good answers")))
+        self._lineEdit_good_ans = QtGui.QLineEdit()
+        self._lineEdit_good_ans.setText(";".join(map(str, pms.BONNES_REPONSES)))
+        form_layout.setWidget(0, QtGui.QFormLayout.FieldRole,
+                              self._lineEdit_good_ans)
+
+        # time
+        form_layout.setWidget(1, QtGui.QFormLayout.LabelRole,
+                              QtGui.QLabel(trans_EC(u"Time to fill the form")))
+        self._timeEdit = QtGui.QTimeEdit()
+        self._timeEdit.setTime(QtCore.QTime(pms.TEMPS_DECISION.hour,
+                                            pms.TEMPS_DECISION.minute,
+                                            pms.TEMPS_DECISION.second))
+        form_layout.setWidget(1, QtGui.QFormLayout.FieldRole,
+                              self._timeEdit)
+
+        # payoff
+        form_layout.setWidget(2, QtGui.QFormLayout.LabelRole,
+                              QtGui.QLabel(trans_EC(u"Payoff")))
+        self._spinbox = QtGui.QSpinBox()
+        self._spinbox.setMinimum(0)
+        self._spinbox.setSingleStep(1)
+        self._spinbox.setButtonSymbols(QtGui.QSpinBox.NoButtons)
+        self._spinbox.setValue(pms.GAIN)
+        form_layout.setWidget(2, QtGui.QFormLayout.FieldRole,
+                              self._spinbox)
+
+        button = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok)
+        button.accepted.connect(self._accept)
+        layout.addWidget(button)
+
+        self.setWindowTitle(le2mtrans(u"Parameters"))
+        self.adjustSize()
+
+    def _accept(self):
+        good_ans = map(int, self._lineEdit_good_ans.text().split(";"))
+        time_to_fill = self._timeEdit.time().toPyTime()
+        payoff = self._spinbox.value()
+        txt_confirm = trans_EC(u"Do you confirm?") + u'\n' + \
+        trans_EC(u"Good answers") + u": {}\n".format(good_ans) + \
+        trans_EC(u"Time to fill the form") + u": {}\n".format(str(time_to_fill)) + \
+        trans_EC(u"Payoff") + u": {}".format(payoff)
+        confirm = QtGui.QMessageBox.question(
+            self, le2mtrans(u"Confirmation"), txt_confirm,
+            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if confirm != QtGui.QMessageBox.Yes:
+            return
+        pms.BONNES_REPONSES = good_ans
+        pms.TEMPS_DECISION = time_to_fill
+        pms.GAIN = payoff
+        self.accept()
+

@@ -6,6 +6,8 @@ from twisted.internet import defer
 from util import utiltools
 from util.utili18n import le2mtrans
 import EffortComptageParams as pms
+from EffortComptageTexts import trans_EC
+from EffortComptageGui import DConfig
 
 
 logger = logging.getLogger("le2m.{}".format(__name__))
@@ -31,9 +33,10 @@ class Serveur(object):
             u"Effort comptage", actions)
 
     def _configure(self):
-        self._le2mserv.gestionnaire_graphique.display_information(
-            le2mtrans(u"There is no parameter to configure"))
-        return
+        # self._le2mserv.gestionnaire_graphique.display_information(
+        #     le2mtrans(u"There is no parameter to configure"))
+        screen_config = DConfig(self._le2mserv.gestionnaire_graphique.screen)
+        screen_config.exec_()
 
     @defer.inlineCallbacks
     def _demarrer(self):
@@ -42,6 +45,11 @@ class Serveur(object):
         :return:
         """
         # check conditions =====================================================
+        if len(pms.BONNES_REPONSES) != pms.NB_COLUMNS * pms.NB_ROWS:
+            self._le2mserv.gestionnaire_graphique.display_error(
+                trans_EC(u"The number of rows times the number of columns is "
+                         u"different from the number of good answers!"))
+            return
         if not self._le2mserv.gestionnaire_graphique.question(
                         le2mtrans(u"Start") + u" EffortComptage?"):
             return

@@ -34,13 +34,9 @@ def get_text_explanation():
                     u"saisie ne sont plus actifs.")
 
 
-def get_text_final(bonnes_reponses):
-    return u"Vous avez trouvé {}.".format(
-        get_pluriel(trans_EC(u"bonne réponse"), bonnes_reponses))
-
-
 def get_text_summary(period_content):
-    txt = trans_EC(u"Summary text")
-    return txt
+    return u"Vous avez trouvé {}.".format(
+        get_pluriel(period_content["EC_bonnes_reponses"],
+                    trans_EC(u"bonne réponse")))
 
 

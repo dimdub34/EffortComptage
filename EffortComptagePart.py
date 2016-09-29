@@ -62,7 +62,6 @@ class PartieEC(Partie):
         self.currentperiod.EC_decisiontime = (datetime.now() - debut).seconds
         self.joueur.info(u"{} - {}".format(
             self.currentperiod.EC_bonnes_reponses, reponses))
-        self.joueur.info(u"{}".format(self.currentperiod.EC_decision))
         self.joueur.remove_waitmode()
 
     def compute_periodpayoff(self):
