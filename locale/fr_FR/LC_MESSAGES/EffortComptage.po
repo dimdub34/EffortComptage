@@ -1,0 +1,65 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-09-29 11:34+0200\n"
+"PO-Revision-Date: 2016-09-29 11:35+0200\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.7.1\n"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageTexts.py:30
+msgid ""
+"Pour chaque grille veuillez indiquer le nombre de 1 que vous avez compté.\n"
+"Vous pouvez cliquer sur le bouton \"Tester\" pour vérifier si le nombre "
+"saisi est bon ou non. S'il est bon le bouton et la zone de saisie ne sont "
+"plus actifs."
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageTexts.py:40
+msgid "bonne réponse"
+msgstr ""
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageServ.py:50
+msgid ""
+"The number of rows times the number of columns is different from the number "
+"of good answers!"
+msgstr ""
+"Le nombre de lignes multiplié par le nombre de colonnes n'est pas égal au "
+"nombre de bonnes réponses"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:47
+msgid "Test"
+msgstr "Tester"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:122
+msgid "Decisions"
+msgstr "Décisions"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:160
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:199
+msgid "Good answers"
+msgstr "Bonnes réponses"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:168
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:200
+msgid "Time to fill the form"
+msgstr "Temps pour remplir le formulaire"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:178
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:201
+msgid "Payoff"
+msgstr "Gain"
+
+#: /home/dimitri/Documents/travail/programmes/le2m-v2.1/le2m/parts/EffortComptage/EffortComptageGui.py:198
+msgid "Do you confirm?"
+msgstr "Vous confirmez?"
