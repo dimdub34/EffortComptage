@@ -11,14 +11,15 @@ which means that you should ask to the developer ;-)
 from datetime import time
 
 # variables --------------------------------------------------------------------
-TREATMENTS = {0: "baseline"}
+PAPER = 0
+SCREEN = 1
+TREATMENTS_NAMES = {PAPER: "PAPER", SCREEN: "SCREEN"}
 
 # parameters -------------------------------------------------------------------
-TREATMENT = 0
+TREATMENT = SCREEN
 TAUX_CONVERSION = 1
 NOMBRE_PERIODES = 0
 TAILLE_GROUPES = 0
-GROUPES_CHAQUE_PERIODE = False
 MONNAIE = u"euro"
 
 BONNES_REPONSES = [4, 5, 20, 22, 31, 41, 51, 69, 82, 95]  # mettre une liste
@@ -26,12 +27,3 @@ NB_ROWS, NB_COLUMNS = 5, 2
 TEMPS_DECISION = time(0, 15, 0) # heures, minutes, secondes
 GAIN = 10
 
-
-def get_treatment(code_or_name):
-    if type(code_or_name) is int:
-        return TREATMENTS.get(code_or_name, None)
-    elif type(code_or_name) is str:
-        for k, v in TREATMENTS.viewitems():
-            if v.lower() == code_or_name.lower():
-                return k
-    return None
