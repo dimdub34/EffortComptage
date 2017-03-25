@@ -14,6 +14,7 @@ from EffortComptageTexts import trans_EC
 import EffortComptageTexts as texts_EC
 from client.cltgui.cltguiwidgets import WExplication, WCompterebours
 from twisted.internet.defer import AlreadyCalledError
+import sys
 
 logger = logging.getLogger("le2m")
 
@@ -81,15 +82,18 @@ class GuiDecision(QtGui.QDialog):
         self._automatique = automatique
         self._nb_good_answers = 0
         # images
-        self._img_true = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
-                                                   "true.png"))
-        self._img_true = self._img_true.scaledToWidth(15)
-        self._img_false = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
-                                                    "false.png"))
-        self._img_false = self._img_false.scaledToWidth(15)
-        self._img_question = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
-                                                    "question.png"))
-        self._img_question = self._img_question.scaledToWidth(15)
+        try:
+            self._img_true = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
+                                                       "true.png"))
+            self._img_true = self._img_true.scaledToWidth(15)
+            self._img_false = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
+                                                        "false.png"))
+            self._img_false = self._img_false.scaledToWidth(15)
+            self._img_question = QtGui.QPixmap(os.path.join(params.getp("IMGDIR"),
+                                                        "question.png"))
+            self._img_question = self._img_question.scaledToWidth(15)
+        except AttributeError as e:
+            logger.warning(u"Error while loading images: " + e.message)
 
         layout = QtGui.QVBoxLayout(self)
 
@@ -209,3 +213,9 @@ class DConfig(QtGui.QDialog):
         pms.GAIN = payoff
         self.accept()
 
+
+if __name__ == "__main__":
+    app = QtGui.QApplication(sys.argv)
+    screen = GuiDecision(None, False, None)
+    screen.show()
+    sys.exit(app.exec_())
